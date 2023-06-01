@@ -4,6 +4,8 @@ This is an entry for TON Wallet Challenge contest.
 
 Much work was done to make sure that all flows are accounted for, user experience is smooth and further improvements of the application would be easy.
 
+**Built APK (in debug mode with debug keystore) can be found inside [debug output directory](app/build/outputs/apk/debug)**
+
 ## Building
 
 To build you need to:

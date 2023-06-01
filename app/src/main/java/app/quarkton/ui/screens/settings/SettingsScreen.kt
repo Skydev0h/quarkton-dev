@@ -6,7 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -25,14 +26,13 @@ import app.quarkton.R
 import app.quarkton.extensions.vrStr
 import app.quarkton.ton.supportedExplorers
 import app.quarkton.ui.elements.Alert
-import app.quarkton.ui.elements.UniversalItem
 import app.quarkton.ui.elements.TopBar
+import app.quarkton.ui.elements.UniversalItem
 import app.quarkton.ui.screens.BaseScreen
 import app.quarkton.ui.screens.other.RecoveryPhraseScreen
 import app.quarkton.ui.screens.other.SetPasscodeScreen
 import app.quarkton.ui.theme.Colors
 import app.quarkton.ui.theme.Styles
-import cafe.adriel.voyager.navigator.Navigator
 
 class SettingsScreen : BaseSettingsScreen() {
 
@@ -67,11 +67,14 @@ class SettingsScreen : BaseSettingsScreen() {
 
         val chg = stringResource(R.string.changing_smth)
 
+        val scrollState = rememberScrollState()
+
         TopBar(color = Color.Black, textColor = Color.White, backColor = Color.White,
             titleText = stringResource(R.string.wallet_settings), backIcon = true)
 
         Surface(
-            modifier = Modifier.fillMaxSize(), color = Color.Black
+            modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
+            color = Color.Black
         ) {
             Column(modifier = Modifier.fillMaxSize())
             {
