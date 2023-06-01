@@ -21,3 +21,6 @@
 #-renamesourcefileattribute SourceFile
 
 -dontobfuscate
+
+-dontwarn com.google.errorprone.annotations.Immutable
+
