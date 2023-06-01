@@ -263,7 +263,10 @@ fun TransactionFrag(
                             text = stringResource(R.string.view_in_explorer),
                             color = Colors.Primary, last = true
                         )
-                        { uriHandler.openUri(makeExplorerLink(transaction = humantran)) }
+                        { uriHandler.openUri(makeExplorerLink(
+                            transaction = transaction.id,
+                            address = transaction.acc
+                        )) }
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))

@@ -1,11 +1,13 @@
 package app.quarkton.ui.screens.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
@@ -21,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.quarkton.R
 import app.quarkton.extensions.vrStr
@@ -73,10 +76,20 @@ class SettingsScreen : BaseSettingsScreen() {
             titleText = stringResource(R.string.wallet_settings), backIcon = true)
 
         Surface(
-            modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
-            color = Color.Black
+            modifier = Modifier.fillMaxSize(),
+            color = Color.White
         ) {
-            Column(modifier = Modifier.fillMaxSize())
+            // Workaround for incorrect black background introduced by scroll fix
+            Column(modifier = Modifier.fillMaxWidth().zIndex(-1f)) {
+                Box(modifier = Modifier.fillMaxWidth().height(100.dp)
+                    .background(Color.Black).zIndex(-1f)) {
+                }
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState))
             {
                 Spacer(
                     modifier = Modifier
@@ -181,6 +194,7 @@ class SettingsScreen : BaseSettingsScreen() {
                         UniversalItem(text = stringResource(R.string.settings_delete_wallet), color = Color.Red, last = true) {
                             checkPasscode(it, DeleteWalletScreen())
                         }
+                        Spacer(modifier = Modifier.weight(1f))
                         /*
                         UniversalItem(header = stringResource(R.string.advanced_settings),
                             color = Colors.DarkShade)
