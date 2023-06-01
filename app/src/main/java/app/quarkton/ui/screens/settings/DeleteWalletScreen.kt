@@ -45,6 +45,9 @@ class DeleteWalletScreen : BaseSettingsScreen() {
                     db.walletDao().deleteAll()
                     db.transDao().deleteAll()
                     db.nameDao().deleteAll()
+                    db.dappDao().deleteAll()
+                    dm.tcDisconnect()
+                    dm.tcd = null
                     delay(500)
                     nav?.replaceAll(StartupScreen())
                 }
