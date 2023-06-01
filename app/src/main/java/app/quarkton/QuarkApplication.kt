@@ -1,6 +1,7 @@
 package app.quarkton
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.room.Room
 import app.quarkton.db.AppDatabase
 import app.quarkton.ton.DataMaster
@@ -33,6 +34,7 @@ class QuarkApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         app = this
     }
 
