@@ -2,7 +2,6 @@ package app.quarkton.utils
 
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
-import android.net.Uri
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy

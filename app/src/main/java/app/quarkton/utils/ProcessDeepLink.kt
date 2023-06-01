@@ -2,8 +2,6 @@ package app.quarkton.utils
 
 import android.net.Uri
 import android.util.Log
-import org.ton.api.pub.PublicKeyEd25519
-import org.ton.bitstring.BitString
 import org.ton.block.AddrStd
 
 fun processDeepLink(u: Uri,

@@ -41,7 +41,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -57,7 +56,6 @@ import app.quarkton.ton.Wallet
 import app.quarkton.ui.elements.TextFieldPad
 import app.quarkton.ui.theme.Colors
 import app.quarkton.ui.theme.Styles
-import io.ktor.util.toLowerCasePreservingASCIIRules
 import kotlinx.coroutines.launch
 import org.ton.block.AddrStd
 import java.time.Instant

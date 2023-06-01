@@ -35,7 +35,6 @@ import app.quarkton.ui.screens.BaseScreen
 import app.quarkton.ui.screens.onboarding.TestTimeScreen
 import app.quarkton.ui.theme.Colors
 import app.quarkton.ui.theme.Styles
-import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 

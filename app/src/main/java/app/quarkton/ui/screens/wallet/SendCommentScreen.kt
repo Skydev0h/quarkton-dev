@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
@@ -29,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -43,11 +41,10 @@ import app.quarkton.extensions.breakMiddle
 import app.quarkton.extensions.shortAddr
 import app.quarkton.extensions.simpleBalance
 import app.quarkton.extensions.vibrateError
-import app.quarkton.extensions.vibrateKeyPress
 import app.quarkton.extensions.vibrateLongPress
 import app.quarkton.ui.elements.BackButton
-import app.quarkton.ui.elements.UniversalItem
 import app.quarkton.ui.elements.TextFieldPad
+import app.quarkton.ui.elements.UniversalItem
 import app.quarkton.ui.screens.settings.CheckPasscodeScreen
 import app.quarkton.ui.theme.Colors
 import app.quarkton.ui.theme.Styles

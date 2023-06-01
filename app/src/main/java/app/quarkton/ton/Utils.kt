@@ -1,11 +1,9 @@
 package app.quarkton.ton
 
 import app.quarkton.QuarkApplication
-import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
 import kotlinx.datetime.Clock
 import org.ton.crypto.decodeHex
-import org.ton.crypto.encodeHex
 
 fun now(): Long = nowms() / 1000
 fun nowms(): Long = Clock.System.now().toEpochMilliseconds()

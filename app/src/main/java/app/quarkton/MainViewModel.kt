@@ -1,10 +1,7 @@
 package app.quarkton
 
-import android.net.Uri
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import app.quarkton.db.DAppItem
 import app.quarkton.ton.extensions.secureGenerate
@@ -15,7 +12,6 @@ import cash.z.ecc.android.bip39.Mnemonics.MnemonicCode
 import cash.z.ecc.android.bip39.Mnemonics.WordCount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -23,7 +19,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import org.ton.crypto.SecureRandom
 import org.ton.mnemonic.Mnemonic
-import java.util.Observable
 
 class MainViewModel : ViewModel() {
 

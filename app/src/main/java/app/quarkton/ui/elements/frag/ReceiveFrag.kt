@@ -1,20 +1,11 @@
 package app.quarkton.ui.elements.frag
 
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
-
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,9 +20,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,7 +46,6 @@ import androidx.core.content.ContextCompat
 import app.quarkton.R
 import app.quarkton.db.MOCK_ADDR_1
 import app.quarkton.extensions.breakMiddle
-import app.quarkton.ui.elements.Centrify
 import app.quarkton.ui.elements.Overlay
 import app.quarkton.ui.theme.Colors
 import app.quarkton.ui.theme.QuarkTONWalletTheme

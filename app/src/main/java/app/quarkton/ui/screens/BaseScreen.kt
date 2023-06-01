@@ -2,23 +2,11 @@ package app.quarkton.ui.screens
 
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import app.quarkton.CrossDataModel
-import cafe.adriel.voyager.androidx.AndroidScreen
-import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.Navigator
-import kotlinx.coroutines.CoroutineScope
 import app.quarkton.MainActivity
 import app.quarkton.MainViewModel
 import app.quarkton.Persistence
@@ -27,7 +15,11 @@ import app.quarkton.db.AppDatabase
 import app.quarkton.ton.DataMaster
 import app.quarkton.ui.LocalBFC
 import app.quarkton.ui.theme.QuarkTONWalletTheme
-import kotlinx.coroutines.DelicateCoroutinesApi
+import cafe.adriel.voyager.androidx.AndroidScreen
+import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
