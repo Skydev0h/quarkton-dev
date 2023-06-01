@@ -42,14 +42,45 @@ class TestPassedScreen : BaseScreen() {
         val setupUseBiometrics by mdl.onbUseBiometrics.collectAsStateWithLifecycle()
         val alertExists by mdl.alertExists.collectAsStateWithLifecycle()
         val alertShown by mdl.alertShown.collectAsStateWithLifecycle()
-        TopBar(backIcon = true, backClick = {
+
+        // [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [
+        fun backIconClicked() {
             if (mdl.setupIsImporting) {
                 act.updateStatusBar(black = false, dim = true)
                 mdl.showAlert(2)
             }
             else
                 nav?.pop()
-        })
+        }
+
+        fun bioChange() {
+            if (!bioAvailable) {
+                act.updateStatusBar(black = false, dim = true)
+                mdl.showAlert()
+            } else mdl.onbUseBiometrics.value = !mdl.onbUseBiometrics.value
+        }
+
+        fun mainClicked() {
+            mdl.updatingPasscode = false
+            nav?.push(SetPasscodeScreen())
+        }
+
+        fun showImportedWarning() {
+            act.updateStatusBar(black = false, dim = true)
+            mdl.showAlert(2)
+        }
+
+        fun alertClickedImportWarning(it: Int) {
+            act.updateStatusBar(black = false, dim = false)
+            mdl.hideAlert()
+            if (it == R.string.btn_yes) {
+                mdl.clearSeedPhrase()
+                nav?.pop()
+            }
+        }
+        // ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ]
+
+        TopBar(backIcon = true, backClick = ::backIconClicked)
         JumboTemplate(
             // imageId = R.drawable.ph_success,
             lottieId = R.raw.success,
@@ -58,20 +89,9 @@ class TestPassedScreen : BaseScreen() {
         ) {
             if (bioHardware) {
                 Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable {
-                        if (!bioAvailable) {
-                            act.updateStatusBar(black = false, dim = true)
-                            mdl.showAlert()
-                        }
-                        else mdl.onbUseBiometrics.value = !mdl.onbUseBiometrics.value
-                    }) {
-                    Checkbox(checked = setupUseBiometrics, onCheckedChange = {
-                        if (!bioAvailable) {
-                            act.updateStatusBar(black = false, dim = true)
-                            mdl.showAlert()
-                        }
-                        else mdl.onbUseBiometrics.value = !mdl.onbUseBiometrics.value
-                    })
+                    modifier = Modifier.clickable(onClick = ::bioChange)
+                ) {
+                    Checkbox(checked = setupUseBiometrics, onCheckedChange = { bioChange() })
                     Text(
                         text = stringResource(id = R.string.enable_biometric_auth),
                         style = Styles.checkBox,
@@ -82,16 +102,10 @@ class TestPassedScreen : BaseScreen() {
             }
             JumboButtons(
                 mainText = stringResource(R.string.set_a_passcode),
-                mainClicked = {
-                    mdl.updatingPasscode = false
-                    nav?.push(SetPasscodeScreen())
-                },
+                mainClicked = ::mainClicked,
                 topSpacing = 20
             )
-            BackHandler(enabled = mdl.setupIsImporting) {
-                act.updateStatusBar(black = false, dim = true)
-                mdl.showAlert(2)
-            }
+            BackHandler(enabled = mdl.setupIsImporting, onBack = ::showImportedWarning)
         }
         if (alertExists) { // Alert is recomposed for some reason each frame when scrolling
             Alert(enabled = alertShown == 1,
@@ -103,14 +117,7 @@ class TestPassedScreen : BaseScreen() {
                 titleText = stringResource(R.string.are_you_sure),
                 mainText = stringResource(R.string.words_reenter_if_return),
                 buttons = intArrayOf(R.string.btn_yes, R.string.btn_no),
-                clickHandler = {
-                    act.updateStatusBar(black = false, dim = false)
-                    mdl.hideAlert()
-                    if (it == R.string.btn_yes) {
-                        mdl.clearSeedPhrase()
-                        nav?.pop()
-                    }
-                })
+                clickHandler = ::alertClickedImportWarning)
         }
     }
 }

@@ -26,6 +26,24 @@ class NoPhraseScreen : BaseScreen() {
     override fun Content() {
         Init()
         var overlay by remember { mutableStateOf(false) }
+
+        // [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [
+        fun enterWordsClicked() {
+            nav?.pop()
+        }
+
+        fun createNewWalletClicked() {
+            overlay = true
+            mdl.generateSeedPhrase {
+                if (it) {
+                    nav?.popUntil { s -> s is WelcomeScreen }
+                    nav?.push(WalletCreatedScreen())
+                }
+                else overlay = false
+            }
+        }
+        // ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ]
+
         TopBar(backIcon = true)
         JumboTemplate(
             // imageId = R.drawable.ph_too_bad,
@@ -33,18 +51,11 @@ class NoPhraseScreen : BaseScreen() {
             titleText = stringResource(R.string.too_bad),
             mainText = stringResource(R.string.without_secret_words)
         ) {
-            JumboButtons(mainText = stringResource(R.string.enter_24_secret_words), mainClicked = {
-                nav?.pop()
-            }, secText = stringResource(R.string.create_new_instead), secClicked = {
-                overlay = true
-                mdl.generateSeedPhrase {
-                    if (it) {
-                        nav?.popUntil { s -> s is WelcomeScreen }
-                        nav?.push(WalletCreatedScreen())
-                    }
-                    else overlay = false
-                }
-            }, secWidth = 260)
+            JumboButtons(mainText = stringResource(R.string.enter_24_secret_words),
+                mainClicked = ::enterWordsClicked,
+                secText = stringResource(R.string.create_new_instead),
+                secClicked = ::createNewWalletClicked,
+                secWidth = 260)
         }
         Overlay(
             visible = overlay, showProgress = true

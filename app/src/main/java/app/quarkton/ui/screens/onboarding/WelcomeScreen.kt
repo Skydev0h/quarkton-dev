@@ -26,6 +26,21 @@ class WelcomeScreen : BaseScreen() {
     override fun Content() {
         Init()
         var overlay by remember { mutableStateOf(false) }
+
+        // [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [
+        fun createWalletClicked() {
+            overlay = true
+            mdl.generateSeedPhrase {
+                if (it) nav?.push(WalletCreatedScreen())
+                else overlay = false
+            }
+        }
+
+        fun importWalletClicked() {
+            nav?.push(ImportWalletScreen())
+        }
+        // ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ]
+
         JumboTemplate(
             // imageId = R.drawable.ph_main,
             lottieId = R.raw.start,
@@ -33,15 +48,12 @@ class WelcomeScreen : BaseScreen() {
             mainText = stringResource(R.string.ton_wallet_allows),
             lottieIterations = LottieConstants.IterateForever
         ) {
-            JumboButtons(mainText = stringResource(R.string.create_my_wallet), mainClicked = {
-                overlay = true
-                mdl.generateSeedPhrase {
-                    if (it) nav?.push(WalletCreatedScreen())
-                    else overlay = false
-                }
-            }, secText = stringResource(R.string.import_existing_wallet), secClicked = {
-                nav?.push(ImportWalletScreen())
-            })
+            JumboButtons(
+                mainText = stringResource(R.string.create_my_wallet),
+                mainClicked = ::createWalletClicked,
+                secText = stringResource(R.string.import_existing_wallet),
+                secClicked = ::importWalletClicked
+            )
         }
         Overlay(
             visible = overlay, showProgress = true

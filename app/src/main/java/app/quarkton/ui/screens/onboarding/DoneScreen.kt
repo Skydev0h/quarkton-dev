@@ -24,6 +24,13 @@ class DoneScreen : BaseScreen() {
         val imp = mdl.setupIsImporting
         // Start updating right now, it may finish or be close to finishing when user goes ahead
         // They may watch congratulations / success animation which may also occupy their time :)
+
+        // [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [
+        fun mainClicked() {
+            nav?.replaceAll(MainWalletScreen())
+        }
+        // ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ]
+
         LifecycleEffect(onStarted = { dm.refreshCurrentWallet() })
         JumboTemplate(
             // imageId = if (imp) R.drawable.ph_congratulations else R.drawable.ph_success,
@@ -32,9 +39,7 @@ class DoneScreen : BaseScreen() {
             mainText = stringResource(if (imp) R.string.empty_string else R.string.you_are_all_set)
         ) {
             JumboButtons(mainText = stringResource(if (imp) R.string.btn_proceed else R.string.view_my_wallet),
-                mainClicked = {
-                    nav?.replaceAll(MainWalletScreen())
-                }
+                mainClicked = ::mainClicked
             )
         }
     }

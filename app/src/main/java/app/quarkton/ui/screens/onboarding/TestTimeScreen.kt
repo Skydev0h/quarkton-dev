@@ -38,7 +38,6 @@ import app.quarkton.ui.elements.SeedTextField
 import app.quarkton.ui.elements.TopBar
 import app.quarkton.ui.screens.BaseScreen
 import app.quarkton.ui.theme.Styles
-import cafe.adriel.voyager.navigator.Navigator
 
 class TestTimeScreen : BaseScreen() {
 
@@ -46,43 +45,6 @@ class TestTimeScreen : BaseScreen() {
     @Composable
     fun P() {
         Preview()
-    }
-
-    private fun continueClicked(nav: Navigator?, values: List<String>, bad: () -> Unit, empty: (Int) -> Unit) {
-        val numbers = mdl.testNumbers
-        for (i in 0..2) {
-            if (values[i] == "") {
-                empty(i)
-                bad()
-                return
-            }
-        }
-        for (i in 0..2) {
-            if (!mdl.checkSeedPhraseWord(numbers[i] - 1, values[i])) {
-                act.updateStatusBar(black = false, dim = true)
-                mdl.showAlert()
-                bad()
-                return
-            }
-        }
-        nav?.push(TestPassedScreen())
-    }
-
-    private fun alertClickHandler(
-        id: Int, nav: Navigator?, resetTexts: () -> Unit
-    ) {
-        if (id == R.string.btn_see_words) {
-            act.updateStatusBar(black = false, dim = false)
-            mdl.hideAlert()
-            mdl.seedPhraseShown = 0L // Do not show warning if coming back from here
-            nav?.pop()
-            return
-        }
-        if (id == R.string.btn_try_again) {
-            resetTexts()
-        }
-        act.updateStatusBar(black = false, dim = false)
-        mdl.hideAlert()
     }
 
     @Composable
@@ -102,6 +64,52 @@ class TestTimeScreen : BaseScreen() {
         val view = LocalView.current
         val alertExists by mdl.alertExists.collectAsStateWithLifecycle()
         val alertShown by mdl.alertShown.collectAsStateWithLifecycle()
+
+        // [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [
+        fun alertClicked(id: Int) {
+            focusManager.clearFocus()
+            if (id == R.string.btn_see_words) {
+                act.updateStatusBar(black = false, dim = false)
+                mdl.hideAlert()
+                mdl.seedPhraseShown = 0L // Do not show warning if coming back from here
+                nav?.pop()
+                return
+            }
+            if (id == R.string.btn_try_again) {
+                for (i in 0..2) texts[i].value = texts[i].value.copy("", TextRange.Zero)
+                focuses[0].requestFocus()
+            }
+            act.updateStatusBar(black = false, dim = false)
+            mdl.hideAlert()
+        }
+
+        fun continueClicked() {
+            val values = texts.map { it.value.text }
+            for (i in 0..2) {
+                if (values[i] == "") {
+                    focuses[i].requestFocus()
+                    view.vibrateError()
+                    return
+                }
+            }
+            for (i in 0..2) {
+                if (!mdl.checkSeedPhraseWord(numbers[i] - 1, values[i])) {
+                    act.updateStatusBar(black = false, dim = true)
+                    mdl.showAlert()
+                    view.vibrateError()
+                    return
+                }
+            }
+            nav?.push(TestPassedScreen())
+        }
+
+        fun devModeAutoFillClicked() {
+            for (i in 0..2) {
+                texts[i].value = texts[i].value.copy(mdl.seedPhraseWord(numbers[i] - 1))
+            }
+        }
+        // ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ]
+
         LaunchedEffect(Unit) {
             focuses[0].requestFocus()
         }
@@ -139,11 +147,7 @@ class TestTimeScreen : BaseScreen() {
                 Spacer(modifier = Modifier.height(14.dp))
                 if (mdl.developmentMode) {
                     TextButton(
-                        onClick = {
-                            for (i in 0..2) {
-                                texts[i].value = texts[i].value.copy(mdl.seedPhraseWord(numbers[i] - 1))
-                            }
-                        },
+                        onClick = ::devModeAutoFillClicked,
                         modifier = Modifier.height(36.dp),
                         shape = Styles.buttonShape
                     ) {
@@ -157,12 +161,7 @@ class TestTimeScreen : BaseScreen() {
                 for (i in 0..2) SeedTextField(i, numbers, texts, focuses, hidePopup = alertExists)
                 JumboButtons(
                     mainText = stringResource(R.string.btn_continue),
-                    mainClicked = { continueClicked(nav, texts.map { it.value.text },
-                        bad = { view.vibrateError() },
-                        empty = {
-                            focuses[it].requestFocus()
-                        })
-                    },
+                    mainClicked = ::continueClicked,
                     topSpacing = 16,
                     bottomSpacing = 58
                 )
@@ -173,11 +172,7 @@ class TestTimeScreen : BaseScreen() {
                 titleText = stringResource(R.string.incorrect_words),
                 mainText = stringResource(R.string.words_do_not_match),
                 buttons = intArrayOf(R.string.btn_see_words, R.string.btn_try_again),
-                clickHandler = { id -> focusManager.clearFocus()
-                alertClickHandler(id, nav, resetTexts = {
-                    for (i in 0..2) texts[i].value = texts[i].value.copy("", TextRange.Zero)
-                    focuses[0].requestFocus()
-                }) })
+                clickHandler = ::alertClicked)
         }
     }
 

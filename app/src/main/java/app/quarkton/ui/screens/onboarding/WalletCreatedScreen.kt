@@ -33,6 +33,30 @@ class WalletCreatedScreen : BaseScreen() {
         val alertShown by mdl.alertShown.collectAsStateWithLifecycle()
         LifecycleEffect(onStarted = {mdl.setupIsImporting = false})
 
+        // [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [
+        fun mainClicked() {
+            nav?.push(RecoveryPhraseScreen())
+            overlay = true
+            act.secure()
+            mdl.seedPhraseShown = nowms()
+            mdl.seedPhraseWarningShown = false
+        }
+
+        fun backPressed() {
+            act.updateStatusBar(black = false, dim = true)
+            mdl.showAlert()
+        }
+
+        fun alertClickHandler(it: Int) {
+            act.updateStatusBar(black = false, dim = false)
+            mdl.hideAlert()
+            if (it == R.string.btn_yes) {
+                mdl.clearSeedPhrase()
+                nav?.pop()
+            }
+        }
+        // ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ]
+
         TopBar(backIcon = true, backClick = {
             act.updateStatusBar(black = false, dim = true)
             mdl.showAlert()
@@ -45,18 +69,9 @@ class WalletCreatedScreen : BaseScreen() {
         ) {
             JumboButtons(
                 mainText = stringResource(R.string.btn_proceed),
-                mainClicked = {
-                    nav?.push(RecoveryPhraseScreen())
-                    overlay = true
-                    act.secure()
-                    mdl.seedPhraseShown = nowms()
-                    mdl.seedPhraseWarningShown = false
-                }
+                mainClicked = ::mainClicked
             )
-            BackHandler(enabled = true) {
-                act.updateStatusBar(black = false, dim = true)
-                mdl.showAlert()
-            }
+            BackHandler(enabled = true, onBack = ::backPressed)
         }
         Overlay(visible = overlay)
         if (alertExists) { // Alert is recomposed for some reason each frame when scrolling
@@ -64,14 +79,7 @@ class WalletCreatedScreen : BaseScreen() {
                 titleText = stringResource(R.string.are_you_sure),
                 mainText = stringResource(R.string.words_lost_if_return),
                 buttons = intArrayOf(R.string.btn_yes, R.string.btn_no),
-                clickHandler = {
-                    act.updateStatusBar(black = false, dim = false)
-                    mdl.hideAlert()
-                    if (it == R.string.btn_yes) {
-                        mdl.clearSeedPhrase()
-                        nav?.pop()
-                    }
-                })
+                clickHandler = ::alertClickHandler)
         }
     }
 

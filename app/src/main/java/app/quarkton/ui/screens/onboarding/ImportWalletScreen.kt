@@ -1,5 +1,6 @@
 package app.quarkton.ui.screens.onboarding
 
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,7 +37,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -131,6 +131,97 @@ class ImportWalletScreen : BaseScreen() {
         val alertExists by mdl.alertExists.collectAsStateWithLifecycle()
         val alertShown by mdl.alertShown.collectAsStateWithLifecycle()
 
+        // [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ [
+        fun seedLenItemClicked(i: Int) {
+            seedLen.value = i
+            seedLenPopup.value = false
+        }
+
+        fun noPhraseClicked() {
+            nav?.push(NoPhraseScreen())
+        }
+
+        fun devModeGenSeedClicked(std: Boolean) {
+            mdl.generateSeedPhrase((if (std) -1 else 1) * seedLen.value) {
+                for (i in texts.indices) {
+                    texts[i].value = texts[i].value.copy(mdl.seedPhraseWord(i))
+                }
+            }
+        }
+
+        fun pkFilePickerResultReceived(uri: Uri?) {
+            if (uri != null) {
+                // Update the state with the Uri
+                act.contentResolver.openFileDescriptor(uri, "r").use {
+                    if (it == null) return
+                    if ((it.statSize != 32L) and (it.statSize != 64L)) {
+                        showAlert(4)
+                        return
+                    }
+                }
+                act.contentResolver.openInputStream(uri).use {
+                    if (it == null) return
+                    val data = it.readBytes()
+                    if (data.size == 32) {
+                        texts[0].value =
+                            texts[0].value.copy(data.encodeHex(), TextRange(64))
+                        return
+                    } else if (data.size == 64) {
+                        val str = data.decodeToString()
+                        if (!str.all { c -> c.isDigit() or (c.lowercaseChar() in 'a'..'f') }) {
+                            showAlert(4)
+                            return
+                        }
+                        texts[0].value = texts[0].value.copy(str, TextRange(64))
+                    }
+                }
+            }
+        }
+
+        fun pkFieldValueChanged(it: TextFieldValue) {
+            if (it.text.length > 64) return
+            val t =
+                it.text.filter { c -> c.isDigit() or (c.lowercaseChar() in 'a'..'f') }
+            val tr = it.selection
+            val d = it.text.length - t.length
+            texts[0].value = if (t != it.text) it.copy(
+                t,
+                TextRange(tr.start - d, tr.end - d)
+            ) else it
+        }
+
+        val pickFileLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent(), ::pkFilePickerResultReceived
+        )
+
+        fun pkPickFileClicked() {
+            try {
+                pickFileLauncher.launch("*/*")
+            } catch (_: Throwable) {
+                error("Failed to open pickFileLauncher")
+            }
+        }
+
+        fun simpleAlertClickHandler(it: Int) {
+            fm.clearFocus()
+            act.updateStatusBar(black = false, dim = false)
+            mdl.hideAlert()
+        }
+
+        fun stdImportAlertClickHandler(it: Int) {
+            if (it == R.string.btn_yes) {
+                act.updateStatusBar(black = false, dim = false)
+                mdl.hideAlert()
+                mdl.setupIsImporting = true
+                mdl.importSeedPhrase(texts.map { t -> t.value.text })
+                nav?.push(TestPassedScreen())
+            } else {
+                fm.clearFocus()
+                act.updateStatusBar(black = false, dim = false)
+                mdl.hideAlert()
+            }
+        }
+
         fun done() {
             continueClicked(nav, texts.map { it.value.text }, bad = {
                 view.vibrateError()
@@ -147,6 +238,7 @@ class ImportWalletScreen : BaseScreen() {
                 }
             })
         }
+        // ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ] ]
 
         LaunchedEffect(Unit) {
             try {
@@ -168,9 +260,7 @@ class ImportWalletScreen : BaseScreen() {
             graphics = { this.shadowElevation = MathUtils.clamp(-topPosY.value, 0f, 8f) }
         ) {
             Box(modifier = Modifier.size(56.dp, 56.dp), contentAlignment = Alignment.Center) {
-                IconButton(onClick = {
-                    seedLenPopup.value = true
-                }) {
+                IconButton(onClick = { seedLenPopup.value = true }) {
                     Icon(
                         tint = Colors.Gray,
                         painter = painterResource(id = R.drawable.ic_settings),
@@ -188,10 +278,7 @@ class ImportWalletScreen : BaseScreen() {
                                 style = Styles.passcodeListEntry.copy( fontWeight = if (
                                     seedLen.value == len) FontWeight.Medium else FontWeight.Normal)
                             )
-                        }, onClick = {
-                            seedLen.value = len
-                            seedLenPopup.value = false
-                        })
+                        }, onClick = { seedLenItemClicked(len) })
                     }
                     DropdownMenuItem(text = {
                         Text(
@@ -199,10 +286,7 @@ class ImportWalletScreen : BaseScreen() {
                             style = Styles.passcodeListEntry.copy( fontWeight = if (
                                     seedLen.value == 1) FontWeight.Medium else FontWeight.Normal)
                         )
-                    }, onClick = {
-                        seedLen.value = 1
-                        seedLenPopup.value = false
-                    })
+                    }, onClick = { seedLenItemClicked(1) })
                     /*
                     DropdownMenuItem(text = {
                         Text(
@@ -244,7 +328,7 @@ class ImportWalletScreen : BaseScreen() {
                 Spacer(modifier = Modifier.height(8.dp))
                 if (seedLen.value > 1) {
                     TextButton(
-                        onClick = { nav?.push(NoPhraseScreen()) },
+                        onClick = ::noPhraseClicked,
                         modifier = Modifier.height(36.dp),
                         shape = Styles.buttonShape
                     ) {
@@ -255,13 +339,7 @@ class ImportWalletScreen : BaseScreen() {
                     }
                     if (mdl.developmentMode) {
                         TextButton(
-                            onClick = {
-                                mdl.generateSeedPhrase(seedLen.value) {
-                                    for (i in texts.indices) {
-                                        texts[i].value = texts[i].value.copy(mdl.seedPhraseWord(i))
-                                    }
-                                }
-                            },
+                            onClick = { devModeGenSeedClicked(std = false) },
                             modifier = Modifier.height(36.dp),
                             shape = Styles.buttonShape
                         ) {
@@ -271,13 +349,7 @@ class ImportWalletScreen : BaseScreen() {
                             )
                         }
                         TextButton(
-                            onClick = {
-                                mdl.generateSeedPhrase(-seedLen.value) {
-                                    for (i in texts.indices) {
-                                        texts[i].value = texts[i].value.copy(mdl.seedPhraseWord(i))
-                                    }
-                                }
-                            },
+                            onClick = { devModeGenSeedClicked(std = true) },
                             modifier = Modifier.height(36.dp),
                             shape = Styles.buttonShape
                         ) {
@@ -295,60 +367,18 @@ class ImportWalletScreen : BaseScreen() {
                             SeedTextField(i, numbers, texts, focuses, hidePopup = alertExists,
                                 keyboardActions = KeyboardActions( onDone = { done() } ))
                     } else {
-                        val ctx = LocalContext.current
-                        val pickFileLauncher = rememberLauncherForActivityResult(
-                            ActivityResultContracts.GetContent()
-                        ) { uri ->
-                            if (uri != null) {
-                                // Update the state with the Uri
-                                ctx.contentResolver.openFileDescriptor(uri, "r").use {
-                                    if (it == null) return@rememberLauncherForActivityResult
-                                    if ((it.statSize != 32L) and (it.statSize != 64L)) {
-                                        showAlert(4)
-                                        return@rememberLauncherForActivityResult
-                                    }
-                                }
-                                ctx.contentResolver.openInputStream(uri).use {
-                                    if (it == null) return@rememberLauncherForActivityResult
-                                    val data = it.readBytes()
-                                    if (data.size == 32) {
-                                        texts[0].value = texts[0].value.copy(data.encodeHex(), TextRange(64))
-                                        return@rememberLauncherForActivityResult
-                                    }
-                                    else if (data.size == 64) {
-                                        val str = data.decodeToString()
-                                        if (!str.all { c -> c.isDigit() or (c.lowercaseChar() in 'a'..'f') }) {
-                                            showAlert(4)
-                                            return@rememberLauncherForActivityResult
-                                        }
-                                        texts[0].value = texts[0].value.copy(str, TextRange(64))
-                                    }
-                                }
-                            }
-                        }
                         // Private key
-                        OutlinedTextField(value = texts[0].value, onValueChange = {
-                            if (it.text.length > 64) return@OutlinedTextField
-                            val t = it.text.filter { c -> c.isDigit() or (c.lowercaseChar() in 'a'..'f') }
-                            val tr = it.selection
-                            val d = it.text.length - t.length
-                            texts[0].value = if (t != it.text) it.copy(t,
-                                TextRange(tr.start - d, tr.end - d)) else it
-                        }, modifier = Modifier
-                            .fillMaxWidth(7f/9f)
-                            .padding(0.dp, 16.dp),
+                        OutlinedTextField(value = texts[0].value,
+                            onValueChange = ::pkFieldValueChanged,
+                            modifier = Modifier
+                                .fillMaxWidth(7f / 9f)
+                                .padding(0.dp, 16.dp),
                             textStyle = Styles.address,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             keyboardActions = KeyboardActions( onDone = { done() } )
                         )
                         TextButton(
-                            onClick = {
-                                try {
-                                    pickFileLauncher.launch("*/*")
-                                } catch (_: Throwable) {
-                                    error("Failed to open pickFileLauncher")
-                                }
-                            },
+                            onClick = ::pkPickFileClicked,
                             modifier = Modifier.height(36.dp),
                             shape = Styles.buttonShape
                         ) {
@@ -361,7 +391,7 @@ class ImportWalletScreen : BaseScreen() {
                 }
                 JumboButtons(
                     mainText = stringResource(R.string.btn_continue),
-                    mainClicked = { done() },
+                    mainClicked = ::done,
                     topSpacing = 28,
                     bottomSpacing = 58
                 )
@@ -372,46 +402,22 @@ class ImportWalletScreen : BaseScreen() {
                 titleText = stringResource(R.string.incorrect_words),
                 mainText = stringResource(R.string.incorrect_secret_words),
                 buttons = intArrayOf(R.string.btn_ok),
-                clickHandler = {
-                    fm.clearFocus()
-                    act.updateStatusBar(black = false, dim = false)
-                    mdl.hideAlert()
-                })
+                clickHandler = ::simpleAlertClickHandler)
             Alert(enabled = alertShown == 2,
                 titleText = stringResource(R.string.are_you_sure),
                 mainText = stringResource(R.string.std_import_warning),
                 buttons = intArrayOf(R.string.btn_yes, R.string.btn_no),
-                clickHandler = {
-                    if (it == R.string.btn_yes) {
-                        act.updateStatusBar(black = false, dim = false)
-                        mdl.hideAlert()
-                        mdl.setupIsImporting = true
-                        mdl.importSeedPhrase(texts.map { t -> t.value.text })
-                        nav?.push(TestPassedScreen())
-                    } else {
-                        fm.clearFocus()
-                        act.updateStatusBar(black = false, dim = false)
-                        mdl.hideAlert()
-                    }
-                })
+                clickHandler = ::stdImportAlertClickHandler)
             Alert(enabled = alertShown == 3,
                 titleText = stringResource(R.string.incorrect_words),
                 mainText = stringResource(R.string.invalid_private_key),
                 buttons = intArrayOf(R.string.btn_ok),
-                clickHandler = {
-                    fm.clearFocus()
-                    act.updateStatusBar(black = false, dim = false)
-                    mdl.hideAlert()
-                })
+                clickHandler = ::simpleAlertClickHandler)
             Alert(enabled = alertShown == 4,
                 titleText = stringResource(R.string.invalid_file_selected),
                 mainText = stringResource(R.string.invalid_pk_file),
                 buttons = intArrayOf(R.string.btn_ok),
-                clickHandler = {
-                    fm.clearFocus()
-                    act.updateStatusBar(black = false, dim = false)
-                    mdl.hideAlert()
-                })
+                clickHandler = ::simpleAlertClickHandler)
         }
     }
 
