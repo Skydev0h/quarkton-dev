@@ -11,7 +11,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.quarkton.R
 import app.quarkton.ton.nowms
-import app.quarkton.ui.LocalBFC
 import app.quarkton.ui.elements.Alert
 import app.quarkton.ui.elements.JumboButtons
 import app.quarkton.ui.elements.JumboTemplate

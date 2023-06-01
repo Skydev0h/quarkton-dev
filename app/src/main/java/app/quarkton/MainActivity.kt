@@ -67,7 +67,7 @@ open class MainActivity : FragmentActivity() {
         if (mdl.developmentMode)
             mdl.fillRealisticLookingButInvalidSeedForPreviewInAndroidStudio()
         @Suppress("DEPRECATION") // Just to make sure it applies in some strange situations
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         var startScreen: BaseScreen = StartupScreen()
         Log.i("AppActivity::onCreate", "Intent: $intent")
         if (intent != null && intent.action == "android.intent.action.VIEW") {

@@ -202,6 +202,7 @@ class ImportWalletScreen : BaseScreen() {
             }
         }
 
+        @Suppress("UNUSED_PARAMETER")
         fun simpleAlertClickHandler(it: Int) {
             fm.clearFocus()
             act.updateStatusBar(black = false, dim = false)
