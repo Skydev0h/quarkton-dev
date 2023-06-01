@@ -1007,18 +1007,22 @@ class DataMaster(
     fun tcTransactionSendResult(id: Long? = null) {
         val ps = tcPendingSend!!
         val wal = getWallet()!!
-        val sent = mutableStateOf(false)
         crs.launch {
-            multipass() { lc, _, _ ->
-                val signed = wal.signTransfer(liteClient = lc,
-                    transfers = ps.second.toTypedArray(), validUntil = ps.third)
-                val boc = BagOfCells(signed).toByteArray().encodeBase64()
-                synchronized(sent) {
-                    if (!sent.value)
-                        tcl.replySuccess(id ?: ps.first, boc)
-                    sent.value = true
+            val sent = atomic(false)
+            val signedTransfer = atomic<Cell?>(null)
+            multipass { lc, _, _ ->
+                if (signedTransfer.value == null) {
+                    val signed = wal.signTransfer(
+                        liteClient = lc,
+                        transfers = ps.second.toTypedArray(), validUntil = ps.third
+                    )
+                    signedTransfer.compareAndSet(null, signed)
                 }
-                wal.transferPrepared(lc, signed)
+                if (sent.compareAndSet(expect = false, update = true)) {
+                    tcl.replySuccess(id ?: ps.first,
+                        BagOfCells(signedTransfer.value!!).toByteArray().encodeBase64())
+                }
+                wal.transferPrepared(lc, signedTransfer.value!!)
                 return@multipass true
             }
         }
