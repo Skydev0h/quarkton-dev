@@ -15,8 +15,8 @@ android {
         applicationId "app.quarkton"
         minSdk 23
         targetSdk 33
-        versionCode 103006
-        versionName "1.3.6"
+        versionCode 103007
+        versionName "1.3.7"
 
 //        javaCompileOptions {
 //            annotationProcessorOptions {

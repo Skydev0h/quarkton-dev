@@ -117,4 +117,8 @@ class Persistence(context: Context, db: AppDatabase) {
         prefs.getString("tcBridge", null) ?: DataMaster.TC_DEFAULT_BRIDGE
     ) { _, _, newValue -> prefs.edit().putString("tcBridge", newValue).apply() }
 
+    var devMode: Boolean by Delegates.observable(
+        prefs.getBoolean("devMode", false)
+    ) { _, _, newValue -> prefs.edit().putBoolean("devMode", newValue).apply() }
+
 }
