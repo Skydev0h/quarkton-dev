@@ -1,5 +1,9 @@
 package app.quarkton.ui.screens.other
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -7,9 +11,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,7 +24,15 @@ import androidx.compose.ui.unit.dp
 import app.quarkton.ton.Wallet
 import app.quarkton.ton.extensions.toKey
 import app.quarkton.ui.screens.BaseScreen
+import app.quarkton.ui.theme.Colors
+import com.benasher44.uuid.Uuid
+import com.juul.kable.Filter
+import com.juul.kable.Scanner
+import com.juul.kable.logs.Logging
+import com.juul.kable.logs.SystemLogEngine
+import com.juul.kable.peripheral
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -46,6 +61,7 @@ class DebugScreen : BaseScreen() {
         }
         val json = remember { Json{ ignoreUnknownKeys = true } }
         val text = remember { mutableStateOf("") }
+        var btperm by remember { mutableStateOf(false) }
         val scrollState = rememberScrollState()
         Surface(color = Color.Black) {
             Column(modifier = Modifier
@@ -161,6 +177,50 @@ class DebugScreen : BaseScreen() {
                     }
                 }) {
                     Text(text = "Account addresses")
+                }
+                val launcher =
+                    rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission())
+                    { granted -> btperm = granted }
+
+                LaunchedEffect(true) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        launcher.launch(Manifest.permission.BLUETOOTH_SCAN)
+                        launcher.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                    } else
+                        btperm = true
+                }
+
+                OutlinedButton(onClick = {
+                    if (!btperm) return@OutlinedButton
+                    crs?.launch {
+                        val lid = Uuid.fromString("13D63400-2C97-0004-0000-4C6564676572")
+                        val found = mutableSetOf<String>()
+                        val scanner = Scanner {
+                            filters = listOf(Filter.Service(lid))
+                            logging {
+                                engine = SystemLogEngine
+                                level = Logging.Level.Warnings
+                                format = Logging.Format.Multiline
+                            }
+                        }
+                        text.value = ""
+                        scanner.advertisements.collect {
+                            if (found.contains(it.address))
+                                return@collect
+                            found.add(it.address)
+                            text.value += "${it.name} ${it.peripheralName} ${it.address} ${it.bondState.name}\n"
+                            var per = crs!!.peripheral(it) {
+
+                            }
+                            per.connect()
+                            per.services?.forEach { ds ->
+                                text.value += "${ds.serviceUuid} ${ds.characteristics.map { i -> i.characteristicUuid }.joinToString(" ")}\n"
+                            }
+                            per.disconnect()
+                        }
+                    }
+                }) {
+                    Text(text = "Ledger", color = if (btperm) Colors.Primary else Color.Red)
                 }
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(text = text.value, Modifier.fillMaxWidth(), color = Color.White)
