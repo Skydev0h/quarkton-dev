@@ -1,5 +1,6 @@
 package app.quarkton.ui.screens.settings
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,8 +8,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -17,6 +23,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -24,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.quarkton.MainActivity
 import app.quarkton.R
 import app.quarkton.extensions.vrStr
 import app.quarkton.ton.supportedExplorers
@@ -45,6 +53,7 @@ class SettingsScreen : BaseSettingsScreen() {
     }
 
     fun checkPasscode(title: String, next: BaseScreen, allowFP: Boolean = false) {
+        mdl.resetSettings()
         mdl.nextSettingsScreen = next
         mdl.nextSettingsTitle.value = title
         mdl.nextSettingsAllowFP = allowFP
@@ -72,7 +81,22 @@ class SettingsScreen : BaseSettingsScreen() {
         val scrollState = rememberScrollState()
 
         TopBar(color = Color.Black, textColor = Color.White, backColor = Color.White,
-            titleText = stringResource(R.string.wallet_settings), backIcon = true)
+            titleText = stringResource(R.string.wallet_settings), backIcon = true) {
+            Box(modifier = Modifier.size(56.dp, 56.dp), contentAlignment = Alignment.Center) {
+                IconButton(onClick = {
+                    per.devMode = !per.devMode
+                    val int = Intent(act, MainActivity::class.java)
+                    act.startActivity(int)
+                    act.finishAffinity()
+                }) {
+                    Icon(
+                        tint = if (per.devMode) Colors.BalGreen else Colors.Primary,
+                        imageVector = Icons.Outlined.Build,
+                        contentDescription = "Dev Mode"
+                    )
+                }
+            }
+        }
 
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -144,6 +168,7 @@ class SettingsScreen : BaseSettingsScreen() {
                         UniversalItem(text = stringResource(R.string.require_auth_for_sending),
                             toggle = moreAuth.value, subText = stringResource(R.string.ask_passcode_each_time)
                         ) {
+                            mdl.resetSettings()
                             val newVal = !moreAuth.value
                             if (!newVal) {
                                 // moreAuth True -> False
@@ -174,6 +199,7 @@ class SettingsScreen : BaseSettingsScreen() {
                         }
                         UniversalItem(text = stringResource(R.string.settings_biometric_auth),
                             toggle = bio.value, enabled = bioAvailable and bioHardware) {
+                            mdl.resetSettings()
                             if (!bioHardware)
                                 showAlert(1)
                             else if (!bioAvailable)

@@ -1,6 +1,5 @@
 package app.quarkton.ui.screens.other
 
-import android.content.Intent
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
@@ -10,21 +9,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
@@ -35,14 +28,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import app.quarkton.BuildConfig
-import app.quarkton.MainActivity
 import app.quarkton.R
 import app.quarkton.extensions.vibrateError
 import app.quarkton.ui.elements.BiathlonBox
 import app.quarkton.ui.elements.JumboTemplate
 import app.quarkton.ui.elements.Keypad
-import app.quarkton.ui.elements.TopBar
 import app.quarkton.ui.screens.BaseScreen
 import app.quarkton.ui.screens.wallet.MainWalletScreen
 import app.quarkton.ui.theme.Colors
@@ -149,6 +139,7 @@ class LockScreen : BaseScreen() {
                 act.finish()
         }
 
+        /*
         if (BuildConfig.DEBUG) {
             TopBar(color = Color.Black) {
                 Box(modifier = Modifier.size(56.dp, 56.dp), contentAlignment = Alignment.Center) {
@@ -167,6 +158,7 @@ class LockScreen : BaseScreen() {
                 }
             }
         }
+        */
 
         Column(
             modifier = Modifier

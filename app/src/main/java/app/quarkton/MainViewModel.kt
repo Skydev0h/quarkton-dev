@@ -190,6 +190,13 @@ class MainViewModel : ViewModel() {
         sendAllBalance = false
     }
 
+    fun resetSettings() {
+        nextSettingsTitle.value = ""
+        nextSettingsScreen = null
+        nextSettingsAction = null
+        nextSettingsAllowFP = false
+    }
+
     // *********************************************************************************************
 
 
